@@ -1,11 +1,14 @@
+import os
+import dj_database_url
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-0dzrxs)k%g9k@0$gf6tr0n1ld4=d3puuox1kr6+ec%pxzz1oa-'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-0dzrxs)k%g9k@0$gf6tr0n1ld4=d3puuox1kr6+ec%pxzz1oa-')
 
-DEBUG = False
-ALLOWED_HOSTS = ['bfp-firs.onrender.com']
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,7 +24,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # ← MUST be first
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,11 +55,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'firs_backend.wsgi.application'
 
+# ── DATABASE (PostgreSQL on Render, SQLite locally) ───────────────────────────
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -86,31 +89,26 @@ REST_FRAMEWORK = {
     ],
 }
 
-# ← CORS: remove CORS_ALLOW_ALL_ORIGINS, use explicit list only
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://bfp-firs.onrender.com',
-    'https://bfp-firs.vercel.app',
-]
+# ── CORS ──────────────────────────────────────────────────────────────────────
+_cors_origins = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://localhost:3000'
+)
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(',')]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "origin",
-    "x-csrftoken",
-    "x-requested-with",
+    "accept", "accept-encoding", "authorization",
+    "content-type", "origin", "x-csrftoken", "x-requested-with",
 ]
 
+# ── EMAIL ─────────────────────────────────────────────────────────────────────
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_PORT          = 587
 EMAIL_USE_TLS       = True
-EMAIL_HOST_USER     = 'xola050124@gmail.com'
-EMAIL_HOST_PASSWORD = 'iyyrmngbouulclud'
+EMAIL_HOST_USER     = os.environ.get('EMAIL_HOST_USER', 'operation.firs.2026@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wqse qiyn pvqj xlbn')
 DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER
 
 PASSWORD_RESET_TIMEOUT = 120
-FRONTEND_URL = 'https://bfp-firs.vercel.app'
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
