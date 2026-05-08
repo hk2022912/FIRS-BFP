@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import "./index.css";
 
 /* ─── CONFIGG ──────────────────────────────────────────────────────────────── */
-const API_BASE = "https://bfp-firs.onrender.com/api";
+const API_BASE = "https://firs-bfp.onrender.com/api";
 
 function authHeaders(token) {
   return { "Content-Type": "application/json", Authorization: `Token ${token}` };
